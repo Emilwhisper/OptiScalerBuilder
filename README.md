@@ -12,10 +12,11 @@ Automated GitHub Actions builder for creating a packaged OptiScaler latest build
 
 ## Credits / Dependencies
 - [OptiScaler](https://github.com/optiscaler/OptiScaler)
+- [fakenvapi](https://github.com/optiscaler/fakenvapi)
 - [OptiPatcher](https://github.com/optiscaler/OptiPatcher)
-- [dlssg-to-fsr3](https://github.com/Nukem9/dlssg-to-fsr3) by Nukem9
-- [DLSS-Enabler](https://github.com/artur-graniszewski/DLSS-Enabler) by artur-graniszewski
 - [NVIDIA Streamline SDK](https://github.com/NVIDIA-RTX/Streamline)
+- [DLSS-Enabler](https://github.com/artur-graniszewski/DLSS-Enabler) by artur-graniszewski
+- [dlssg-to-fsr3](https://github.com/Nukem9/dlssg-to-fsr3) by Nukem9
 
 ## Usage
 1. Fork the repository.
