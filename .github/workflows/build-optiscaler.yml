@@ -262,7 +262,7 @@ jobs:
     - name: bygalacos - Download latest DLSS Enabler
       shell: powershell
       run: |
-        $Files = Invoke-RestMethod "https://api.github.com/repos/bygalacos/OptiScalerBuilder/contents/dlss-enabler"
+        $Files = Invoke-RestMethod "https://api.github.com/repos/${{ github.repository }}/contents/dlss-enabler"
 
         $Versions = $Files |
             Where-Object { $_.name -like "*.zip" } |
