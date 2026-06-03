@@ -1,0 +1,266 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Run OptiScalerBuilder by bygalacos
+
+on:
+  workflow_dispatch:
+#  push:
+#    branches: [ "master" ]
+#  pull_request:
+#    branches: [ "master" ]
+    
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: .
+
+  # Configuration type to build.
+  # You can convert this to a build matrix if you need coverage of multiple configuration types.
+  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+  BUILD_CONFIGURATION: Release
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    environment: Build
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: optiscaler/OptiScaler
+        path: .
+        submodules: recursive
+        
+    - name: OptiScaler - Extract Version
+      id: get_version
+      working-directory: ${{ github.workspace }}
+      shell: powershell
+      run: |
+        # Ensure the file exists before proceeding
+        $resourceFile = ".\OptiScaler\resource.h"
+        if (-Not (Test-Path $resourceFile)) {
+            Write-Error "File not found: $resourceFile"
+            exit 1
+        }
+        
+        # Helper function to extract the first matching line for a version component
+        function Get-Version-Component {
+            param (
+                [string]$pattern,
+                [string]$replacement
+            )
+            # Use Select-String and take only the first match
+            $line = Get-Content $resourceFile | Select-String -Pattern $pattern | Select-Object -First 1
+            if ($line) {
+                return ($line.Line -replace $replacement).Trim()
+            } else {
+                Write-Error "Pattern not found: $pattern"
+                exit 1
+            }
+        }
+        
+        # Extract version components (only the first match for each pattern)
+        $majorVersion = Get-Version-Component 'VER_MAJOR_VERSION' '#define VER_MAJOR_VERSION\s+'
+        $minorVersion = Get-Version-Component 'VER_MINOR_VERSION' '#define VER_MINOR_VERSION\s+'
+        $hotfixVersion = Get-Version-Component 'VER_HOTFIX_VERSION' '#define VER_HOTFIX_VERSION\s+'
+        $buildVersion = Get-Version-Component 'VER_BUILD_NUMBER' '#define VER_BUILD_NUMBER\s+'
+        
+        # Merge into a single version string
+        $version = "v$majorVersion.$minorVersion.$hotfixVersion-pre$buildVersion"
+        
+        # Get the current date in a specific format (e.g., YYYYMMDD)
+        $date = Get-Date -Format "yyyyMMdd"
+        
+        # Construct the output filename with version and date
+        $outputFileName = "OptiScaler_${version}_${date}"
+        
+        # Output the generated filename
+        Write-Output "Generated Filename: $outputFileName"
+        
+        # Write outputs to GITHUB_OUTPUT
+        "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "filename=$outputFileName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        
+      continue-on-error: false
+      
+    - name: OptiScaler - Debug Outputs
+      run: |
+        echo "Version: ${{ steps.get_version.outputs.version }}"
+        echo "Filename: ${{ steps.get_version.outputs.filename }}"
+        
+    - name: OptiScaler - Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v2
+
+    - name: OptiScaler - Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /verbosity:minimal
+      
+    - name: bygalacos - Customize OptiScaler
+      shell: powershell
+      run: |
+        @(
+          "${{ github.workspace }}\x64\Release\a\OptiScaler",
+          "${{ github.workspace }}\x64\Release\a\OptiScaler\plugins",
+          "${{ github.workspace }}\x64\Release\a\OptiScaler\streamline"
+        ) | ForEach-Object {
+          if (Test-Path $_) {
+            Write-Host "Folder already exists: $($_)"
+          }
+          else {
+            Write-Host "Creating folder: $($_)"
+          }
+
+          New-Item -ItemType Directory -Path $_ -Force | Out-Null
+        }
+
+        @(
+          "${{ github.workspace }}\x64\Release\a\D3D12_Optiscaler",
+          "${{ github.workspace }}\x64\Release\a\Licenses",
+          "${{ github.workspace }}\x64\Release\a\!! EXTRACT ALL FILES TO GAME FOLDER !!",
+          "${{ github.workspace }}\x64\Release\a\setup_linux.sh",
+          "${{ github.workspace }}\x64\Release\a\setup_windows.bat"
+        ) | ForEach-Object {
+          if (Test-Path $_) {
+            Write-Host "Removing $($_)"
+            Remove-Item $_ -Recurse -Force
+          }
+          else {
+            Write-Host "Not found $($_)"
+          }
+        }
+
+        @(
+          "${{ github.workspace }}\x64\Release\a\amd_fidelityfx_dx12.dll",
+          "${{ github.workspace }}\x64\Release\a\amd_fidelityfx_framegeneration_dx12.dll",
+          "${{ github.workspace }}\x64\Release\a\amd_fidelityfx_upscaler_dx12.dll",
+          "${{ github.workspace }}\x64\Release\a\amd_fidelityfx_vk.dll",
+          "${{ github.workspace }}\x64\Release\a\libxell.dll",
+          "${{ github.workspace }}\x64\Release\a\libxess.dll",
+          "${{ github.workspace }}\x64\Release\a\libxess_dx11.dll",
+          "${{ github.workspace }}\x64\Release\a\libxess_fg.dll"
+        ) | ForEach-Object {
+          if (Test-Path $_) {
+            Write-Host "Moving $($_)"
+             Move-Item $_ -Destination "${{ github.workspace }}\x64\Release\a\OptiScaler" -Force
+          }
+          else {
+            Write-Host "Not found $($_)"
+          }
+        }
+
+        # DLSS Enabler is required for MFG to work properly. Download it from Arthur and place it at .\Optiscaler\dlss-enabler.headless.dll
+        # Write-Host "Extracting dlssg_to_fsr3_amd_is_better.zip"
+        # Expand-Archive -Path "${{ github.workspace }}\external_bygalacos\dlssg_to_fsr3_amd_is_better.zip" -DestinationPath "${{ github.workspace }}\x64\Release\a\OptiScaler" -Force
+        
+        Write-Host "Downloading fakenvapi.zip"
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/bygalacos/OptiScalerBuilder/main/fakenvapi/fakenvapi.zip" -OutFile "${{ github.workspace }}\fakenvapi.zip"
+        Write-Host "Size: $([math]::Round((Get-Item "${{ github.workspace }}\fakenvapi.zip").Length / 1MB, 2)) MB"
+        Write-Host "Extracting fakenvapi.zip"
+        Expand-Archive -Path "${{ github.workspace }}\fakenvapi.zip" -DestinationPath "${{ github.workspace }}\x64\Release\a\OptiScaler" -Force
+        
+        $release = Invoke-RestMethod "https://api.github.com/repos/optiscaler/OptiPatcher/releases/tags/rolling"
+        $asset = $release.assets | Where-Object { $_.name -match "\.asi$" } | Select-Object -First 1
+
+        if (-not $asset) {
+          throw "No OptiPatcher.asi asset found in rolling release."
+        }
+
+        $out = "${{ github.workspace }}\x64\Release\a\OptiScaler\plugins\OptiPatcher.asi"
+
+        Write-Host "Downloading $($asset.name)"
+        Write-Host "Size: $([math]::Round($asset.size / 1MB, 2)) MB"
+
+        Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $out
+      
+    - name: bygalacos - Download latest NVIDIA Streamline SDK
+      shell: powershell
+      run: |
+        $release = Invoke-RestMethod "https://api.github.com/repos/NVIDIA-RTX/Streamline/releases/latest"
+        $asset = $release.assets | Where-Object { $_.name -match "^streamline-sdk-.*\.zip$" } | Select-Object -First 1
+
+        if (-not $asset) {
+          throw "No streamline-sdk zip asset found in latest release."
+        }
+
+        $url = $asset.browser_download_url
+        $out = "${{ github.workspace }}\streamline-sdk.zip"
+
+        Write-Host "Downloading $($asset.name)"
+        Write-Host "Size: $([math]::Round($asset.size / 1MB, 2)) MB"
+
+        $request = [System.Net.HttpWebRequest]::Create($url)
+        $response = $request.GetResponse()
+        $totalBytes = $response.ContentLength
+
+        $stream = $response.GetResponseStream()
+        $file = [System.IO.File]::Create($out)
+
+        $buffer = New-Object byte[] 1048576
+        $totalRead = 0
+        $lastPrint = Get-Date
+        $startTime = Get-Date
+
+        try {
+          while (($read = $stream.Read($buffer, 0, $buffer.Length)) -gt 0) {
+            $file.Write($buffer, 0, $read)
+            $totalRead += $read
+
+            $now = Get-Date
+            if (($now - $lastPrint).TotalSeconds -ge 2) {
+              $downloadedMb = [math]::Round($totalRead / 1MB, 2)
+              $totalMb = [math]::Round($totalBytes / 1MB, 2)
+              $percent = [math]::Round(($totalRead / $totalBytes) * 100, 2)
+              $speed = [math]::Round(($totalRead / 1MB) / (($now - $startTime).TotalSeconds), 2)
+
+              Write-Host "$downloadedMb MB / $totalMb MB ($percent%) - $speed MB/s"
+              $lastPrint = $now
+            }
+          }
+        }
+        finally {
+          $file.Close()
+          $stream.Close()
+          $response.Close()
+        }
+
+        Write-Host "Download completed: $([math]::Round($totalRead / 1MB, 2)) MB"
+
+        Write-Host "Extracting Streamline SDK..."
+        Expand-Archive "${{ github.workspace }}\streamline-sdk.zip" -DestinationPath "${{ github.workspace }}\streamline-sdk" -Force
+        Write-Host "Extraction completed."
+
+        Get-ChildItem "${{ github.workspace }}\streamline-sdk\bin\x64" -File -Filter "*.dll" |
+        ForEach-Object {
+          Write-Host "Copying $($_.Name)"
+          Copy-Item $_.FullName "${{ github.workspace }}\x64\Release\a\OptiScaler\streamline" -Force
+        }
+      
+    - name: INFO - DLSS Enabler is not included in this package. Download it from Arthur and place it at .\Optiscaler\dlss-enabler.headless.dll
+      shell: powershell
+      run: |
+        Set-Content `
+          "${{ github.workspace }}\x64\Release\a\OptiScaler\README_dlss-enabler-headless.dll.txt" `
+          'Place the DLSS Enabler DLL from Arthur (https://www.nexusmods.com/site/mods/757) in this directory and rename it to "dlss-enabler-headless.dll".'
+        Write-Host "INFO - DLSS Enabler is not included in this package. Download it from Arthur and place it at '.\Optiscaler\dlss-enabler.headless.dll'."
+      
+    - name: Compress the artifact
+      run: |
+        $zipName = "${{ steps.get_version.outputs.filename }}_NVIDIA_bygalacos.7z"
+        7z a -r "${{ github.workspace }}\$zipName" "${{ github.workspace }}\x64\Release\a\*"
+
+      continue-on-error: false
+        
+    - uses: actions/upload-artifact@v7.0.0
+      with:
+        name: '${{ steps.get_version.outputs.filename }}_NVIDIA_bygalacos'
+        path: '${{ github.workspace }}\${{ steps.get_version.outputs.filename }}_NVIDIA_bygalacos.7z'
+        archive: false
+        compression-level: 0
+        if-no-files-found: error
