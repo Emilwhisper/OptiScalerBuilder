@@ -10,6 +10,12 @@ Automated GitHub Actions builder for creating a packaged OptiScaler latest build
 - Adds latest required components from the [NVIDIA Streamline SDK](https://github.com/NVIDIA-RTX/Streamline)
 - Adds the latest [DLSS-Enabler](https://github.com/artur-graniszewski/DLSS-Enabler) available in the repository
 
+## Usage
+1. Fork the repository.
+2. Go to **Actions**.
+3. Run **Build OptiScaler Package**.
+4. Download the generated artifact.
+
 ## Credits / Dependencies
 - [OptiScaler](https://github.com/optiscaler/OptiScaler)
 - [fakenvapi](https://github.com/optiscaler/fakenvapi)
@@ -17,12 +23,6 @@ Automated GitHub Actions builder for creating a packaged OptiScaler latest build
 - [NVIDIA Streamline SDK](https://github.com/NVIDIA-RTX/Streamline)
 - [DLSS-Enabler](https://github.com/artur-graniszewski/DLSS-Enabler) by artur-graniszewski
 - [dlssg-to-fsr3](https://github.com/Nukem9/dlssg-to-fsr3) by Nukem9
-
-## Usage
-1. Fork the repository.
-2. Go to **Actions**.
-3. Run **Build OptiScaler Package**.
-4. Download the generated artifact.
 
 ## Disclaimer
 This project is an unofficial builder and packaging utility. It is not affiliated with OptiScaler, NVIDIA, AMD, Intel, Nexus Mods, or any of the original project authors. All credit for the software, technologies, and innovations used by this project belongs to their respective developers and maintainers.
