@@ -11,10 +11,14 @@ Automated GitHub Actions builder for creating a packaged OptiScaler latest build
 - Prepares a clean portable package
 
 ## Usage
-1. Fork the repository.
-2. Go to **Actions**.
-3. Run **Run OptiScalerBuilder**.
-4. Download the generated artifact.
+
+You can download the latest prebuilt release from the [Releases page](https://github.com/bygalacos/OptiScalerBuilder/releases/latest), or build it yourself by following these steps:
+
+1. Fork this repository.
+2. Open the **Actions** tab.
+3. Select the **Run OptiScalerBuilder** workflow.
+4. Click **Run workflow** and wait for the build to complete.
+5. Download the generated artifact from the workflow run.
 
 ## Credits / Dependencies
 - [OptiScaler](https://github.com/optiscaler/OptiScaler)
