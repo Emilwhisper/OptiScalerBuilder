@@ -3,11 +3,11 @@
 Automated GitHub Actions builder for creating a packaged OptiScaler build with optional helper components.
 
 ## What this repo does
+- Prepares a clean portable package
 - Builds the latest [OptiScaler](https://github.com/optiscaler/OptiScaler) from source
 - Adds the [OptiPatcher](https://github.com/optiscaler/OptiPatcher) plugin
 - Adds required components from the [NVIDIA Streamline SDK](https://github.com/NVIDIA-RTX/Streamline)
 - Adds the [DLSS-Enabler](https://github.com/artur-graniszewski/DLSS-Enabler)
-- Prepares a clean portable package
 
 ## Credits / Dependencies
 - [OptiScaler](https://github.com/optiscaler/OptiScaler)
