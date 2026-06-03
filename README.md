@@ -1,4 +1,5 @@
 # OptiScalerBuilder
+Current Build Info: OptiScaler 0.10.0-pre1 / Streamline 2.11.1 / DLLS Enabler 4.7.7
 
 Automated GitHub Actions builder for creating a packaged OptiScaler build with optional helper components.
 
