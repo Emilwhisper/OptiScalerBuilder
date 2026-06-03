@@ -252,15 +252,15 @@ jobs:
       
     - name: Compress the artifact
       run: |
-        $zipName = "${{ steps.get_version.outputs.filename }}_NVIDIA_bygalacos.7z"
+        $zipName = "${{ steps.get_version.outputs.filename }}_bygalacos.7z"
         7z a -r "${{ github.workspace }}\$zipName" "${{ github.workspace }}\x64\Release\a\*"
 
       continue-on-error: false
         
     - uses: actions/upload-artifact@v7.0.0
       with:
-        name: '${{ steps.get_version.outputs.filename }}_NVIDIA_bygalacos'
-        path: '${{ github.workspace }}\${{ steps.get_version.outputs.filename }}_NVIDIA_bygalacos.7z'
+        name: '${{ steps.get_version.outputs.filename }}_bygalacos'
+        path: '${{ github.workspace }}\${{ steps.get_version.outputs.filename }}_bygalacos.7z'
         archive: false
         compression-level: 0
         if-no-files-found: error
