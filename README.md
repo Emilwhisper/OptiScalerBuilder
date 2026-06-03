@@ -13,7 +13,7 @@ Automated GitHub Actions builder for creating a packaged OptiScaler latest build
 ## Usage
 1. Fork the repository.
 2. Go to **Actions**.
-3. Run **Build OptiScaler Package**.
+3. Run **Run OptiScalerBuilder**.
 4. Download the generated artifact.
 
 ## Credits / Dependencies
