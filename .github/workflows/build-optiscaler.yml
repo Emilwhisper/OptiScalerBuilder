@@ -154,13 +154,34 @@ jobs:
             Write-Host "Not found $($_)"
           }
         }
+      
+    - name: bygalacos - Download Latest fakenvapi
+      shell: powershell
+      run: |
+        $release = Invoke-RestMethod "https://api.github.com/repos/optiscaler/fakenvapi/releases/latest"
+        $asset = $release.assets | Where-Object { $_.name -match "\.7z$" } | Select-Object -First 1
 
-        Write-Host "Downloading fakenvapi.zip"
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/bygalacos/OptiScalerBuilder/main/fakenvapi/fakenvapi.zip" -OutFile "${{ github.workspace }}\fakenvapi.zip"
-        Write-Host "Size: $([math]::Round((Get-Item "${{ github.workspace }}\fakenvapi.zip").Length / 1MB, 2)) MB"
+        if (-not $asset) {
+        throw "No fakenvapi.7z asset found in latest release."
+        }
+
+        $out = "${{ github.workspace }}\fakenvapi.7z"
+
+        Write-Host "Downloading $($asset.name)"
+        Write-Host "Size: $([math]::Round($asset.size / 1MB, 2)) MB"
+
+        Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $out
+
         Write-Host "Extracting fakenvapi.zip"
-        Expand-Archive -Path "${{ github.workspace }}\fakenvapi.zip" -DestinationPath "${{ github.workspace }}\x64\Release\a\OptiScaler" -Force
-        
+        7z x $out "-o${{ github.workspace }}\\x64\Release\a\OptiScaler" -y
+
+        if ($LASTEXITCODE -ne 0) {
+          throw "7z extraction failed with exit code $LASTEXITCODE"
+        }
+      
+    - name: bygalacos - Download Latest OptiPatcher
+      shell: powershell
+      run: |
         $release = Invoke-RestMethod "https://api.github.com/repos/optiscaler/OptiPatcher/releases/tags/rolling"
         $asset = $release.assets | Where-Object { $_.name -match "\.asi$" } | Select-Object -First 1
 
