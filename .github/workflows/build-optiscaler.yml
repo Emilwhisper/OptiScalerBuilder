@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Build OptiScaler
+name: Run OptiScalerBuilder
 
 on:
   workflow_dispatch:
@@ -155,10 +155,6 @@ jobs:
           }
         }
 
-        # DLSS Enabler is required for MFG to work properly. Download it from Arthur and place it at .\Optiscaler\dlss-enabler.headless.dll
-        # Write-Host "Extracting dlssg_to_fsr3_amd_is_better.zip"
-        # Expand-Archive -Path "${{ github.workspace }}\external_bygalacos\dlssg_to_fsr3_amd_is_better.zip" -DestinationPath "${{ github.workspace }}\x64\Release\a\OptiScaler" -Force
-        
         Write-Host "Downloading fakenvapi.zip"
         Invoke-WebRequest -Uri "https://raw.githubusercontent.com/bygalacos/OptiScalerBuilder/main/fakenvapi/fakenvapi.zip" -OutFile "${{ github.workspace }}\fakenvapi.zip"
         Write-Host "Size: $([math]::Round((Get-Item "${{ github.workspace }}\fakenvapi.zip").Length / 1MB, 2)) MB"
@@ -242,13 +238,34 @@ jobs:
           Copy-Item $_.FullName "${{ github.workspace }}\x64\Release\a\OptiScaler\streamline" -Force
         }
       
-    - name: INFO - DLSS Enabler is not included in this package. Download it from Arthur and place it at .\Optiscaler\dlss-enabler.headless.dll
+    - name: bygalacos - Download latest DLSS Enabler
       shell: powershell
       run: |
-        Set-Content `
-          "${{ github.workspace }}\x64\Release\a\OptiScaler\README_dlss-enabler-headless.dll.txt" `
-          'Place the DLSS Enabler DLL from Arthur (https://www.nexusmods.com/site/mods/757) in this directory and rename it to "dlss-enabler-headless.dll".'
-        Write-Host "INFO - DLSS Enabler is not included in this package. Download it from Arthur and place it at '.\Optiscaler\dlss-enabler.headless.dll'."
+        $Files = Invoke-RestMethod "https://api.github.com/repos/bygalacos/OptiScalerBuilder/contents/dlss-enabler"
+
+        $Versions = $Files |
+            Where-Object { $_.name -like "*.zip" } |
+            ForEach-Object {
+                if ($_.name -match 'DLSS Enabler (\d+\.\d+\.\d+)') {
+                    [PSCustomObject]@{
+                        Version = [version]$Matches[1]
+                        File    = $_.name
+                        Url     = $_.download_url
+                    }
+                }
+            } |
+            Sort-Object Version -Descending
+
+        $Versions | Format-Table @{Label="Available DLSS Enabler Versions In Repository";Expression={$_.File}}, Version -AutoSize
+
+        $LatestFile = $Versions | Select-Object -First 1
+
+        Write-Host "Downloading DLSS Enabler" "$($LatestFile.Version)"
+        Invoke-WebRequest -Uri $LatestFile.Url -OutFile "${{ github.workspace }}\dlss-enabler.zip"
+        Write-Host "Size: $([math]::Round((Get-Item "${{ github.workspace }}\dlss-enabler.zip").Length / 1MB, 2)) MB"
+        Write-Host "Extracting DLSS Enabler" "$($LatestFile.Version)"
+        Expand-Archive -Path "${{ github.workspace }}\dlss-enabler.zip" -DestinationPath "${{ github.workspace }}\x64\Release\a\OptiScaler" -Force
+        Rename-Item -Path "${{ github.workspace }}\x64\Release\a\OptiScaler\version.dll" -NewName "dlss-enabler-headless.dll"
       
     - name: Compress the artifact
       run: |
