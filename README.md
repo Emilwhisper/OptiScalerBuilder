@@ -20,6 +20,8 @@ You can download the latest prebuilt release from the [Releases page](https://gi
 4. Click **Run workflow** and wait for the build to complete.
 5. Download the generated artifact from the workflow run.
 
+Please note: Since the DLSS Enabler files in this repository are static, you'll need to keep your fork synchronized with the upstream repository to use newer DLSS Enabler versions when building manually.
+
 ## Credits / Dependencies
 - [OptiScaler](https://github.com/optiscaler/OptiScaler)
 - [fakenvapi](https://github.com/optiscaler/fakenvapi)
