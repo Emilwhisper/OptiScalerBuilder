@@ -267,7 +267,7 @@ jobs:
         $Versions = $Files |
             Where-Object { $_.name -like "*.zip" } |
             ForEach-Object {
-                if ($_.name -match 'DLSS Enabler (\d+\.\d+\.\d+)') {
+                if ($_.name -match 'DLSS Enabler (\d+(?:\.\d+){2,3})') {
                     [PSCustomObject]@{
                         Version = [version]$Matches[1]
                         File    = $_.name
