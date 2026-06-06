@@ -8,7 +8,7 @@ name: Run OptiScalerBuilder - Test
 on:
   workflow_dispatch:
   schedule:
-    - cron: "* * * * *"
+    - cron: "*/5 * * * *"
 #  push:
 #    branches: [ "master" ]
 #  pull_request:
