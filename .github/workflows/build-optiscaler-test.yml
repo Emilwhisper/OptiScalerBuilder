@@ -7,6 +7,8 @@ name: Run OptiScalerBuilder - Test
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 */12 * * *"
 #  push:
 #    branches: [ "master" ]
 #  pull_request:
@@ -161,6 +163,7 @@ jobs:
       run: |
         $release = Invoke-RestMethod "https://api.github.com/repos/optiscaler/fakenvapi/releases/latest"
         "version=$($release.tag_name)" >> $env:GITHUB_OUTPUT
+        Write-Host "fakenvapi version output set: $($release.tag_name)"
         $asset = $release.assets | Where-Object { $_.name -match "\.7z$" } | Select-Object -First 1
 
         if (-not $asset) {
@@ -187,6 +190,7 @@ jobs:
       run: |
         $release = Invoke-RestMethod "https://api.github.com/repos/optiscaler/OptiPatcher/releases/tags/rolling"
         "version=$($release.tag_name)" >> $env:GITHUB_OUTPUT
+        Write-Host "OptiPatcher version output set: $($release.tag_name)"
         $asset = $release.assets | Where-Object { $_.name -match "\.asi$" } | Select-Object -First 1
 
         if (-not $asset) {
@@ -206,6 +210,7 @@ jobs:
       run: |
         $release = Invoke-RestMethod "https://api.github.com/repos/NVIDIA-RTX/Streamline/releases/latest"
         "version=$($release.tag_name)" >> $env:GITHUB_OUTPUT
+        Write-Host "NVIDIA Streamline SDK version output set: $($release.tag_name)"
         $asset = $release.assets | Where-Object { $_.name -match "^streamline-sdk-.*\.zip$" } | Select-Object -First 1
 
         if (-not $asset) {
@@ -288,6 +293,7 @@ jobs:
 
         $LatestFile = $Versions | Select-Object -First 1
         "version=$($LatestFile.Version)" >> $env:GITHUB_OUTPUT
+        Write-Host "DLSS Enabler version output set: $($LatestFile.Version)"
 
         Write-Host "Downloading DLSS Enabler" "$($LatestFile.Version)"
         Invoke-WebRequest -Uri $LatestFile.Url -OutFile "${{ github.workspace }}\dlss-enabler.zip"
@@ -333,5 +339,6 @@ jobs:
           ${{ github.workspace }}\${{ steps.get_version.outputs.filename }}_bygalacos.7z
         prerelease: false
         make_latest: true
+        overwrite_files: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
