@@ -12,7 +12,7 @@ Automated GitHub Actions builder for creating a packaged OptiScaler latest build
 
 ## Usage
 
-You can download the latest prebuilt release from the [Releases page](https://github.com/bygalacos/OptiScalerBuilder/releases/latest), or build it yourself by following these steps:
+You can download all the prebuilt releases from the [Releases page](https://github.com/bygalacos/OptiScalerBuilder/releases), or build it yourself by following these steps:
 
 1. Fork this repository.
 2. Open the **Actions** tab.
