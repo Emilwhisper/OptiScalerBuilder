@@ -75,10 +75,10 @@ jobs:
         # Merge into a single version string
         $version = "v$majorVersion.$minorVersion.$hotfixVersion-pre$buildVersion"
         
-        # Get the current date in a specific format (e.g., YYYYMMDD)
-        $date = Get-Date -Format "yyyyMMdd"
+        # Get the current date and time
+        $date = Get-Date -Format "yyyyMMdd-HHmmss"
         
-        # Construct the output filename with version and date
+        # Construct the output filename with version and timestamp
         $outputFileName = "OptiScaler_${version}_${date}"
         
         # Output the generated filename
