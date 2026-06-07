@@ -1,38 +1,81 @@
 # OptiScalerBuilder
 
-Automated GitHub Actions builder for creating a packaged OptiScaler latest build (0.10.0-pre1) with optional helper components.
+Automated GitHub Actions builder for creating packaged OptiScaler builds with the latest supported helper components.
 
-## What this repo does
-- Builds the latest [OptiScaler](https://github.com/optiscaler/OptiScaler) from source
-- Adds the latest [fakenvapi](https://github.com/optiscaler/fakenvapi) plugin
-- Adds the latest [OptiPatcher](https://github.com/optiscaler/OptiPatcher) plugin
-- Adds latest required components from the [NVIDIA Streamline SDK](https://github.com/NVIDIA-RTX/Streamline)
-- Adds the latest [DLSS-Enabler](https://github.com/artur-graniszewski/DLSS-Enabler) available in the repository
-- Prepares a clean portable package
+## What this Repository Does
 
-## Usage
+This repository automatically:
 
-You can download all the prebuilt releases from the [Releases page](https://github.com/bygalacos/OptiScalerBuilder/releases), or build it yourself by following these steps:
+* Builds the latest version of OptiScaler directly from source
+* Downloads and integrates the latest release of fakenvapi
+* Downloads and integrates the latest release of OptiPatcher
+* Downloads and integrates the latest NVIDIA Streamline SDK runtime components
+* Downloads and integrates the latest DLSS Enabler package available in this repository
+* Creates a clean, portable package ready for use
+* Generates a GitHub Release containing the packaged build and component version information
+
+## Automated Builds
+
+Builds are generated automatically every 6 hours using GitHub Actions.
+
+Each release includes:
+
+* OptiScaler
+* fakenvapi
+* OptiPatcher
+* NVIDIA Streamline SDK
+* DLSS Enabler
+
+## Downloading Builds
+
+You can find all generated builds on the [Releases](https://github.com/bygalacos/OptiScalerBuilder/releases) page.
+
+## Building It Yourself
+
+If you want to generate your own builds:
 
 1. Fork this repository.
 2. Open the **Actions** tab.
-3. Select the **Run OptiScalerBuilder** workflow.
-4. Click **Run workflow** and wait for the build to complete.
-5. Download the generated artifact from the workflow run.
+3. Select the workflow you would like to build.
+4. Click **Run workflow**.
+5. Wait for the workflow to complete.
+6. Download the generated artifact or release package.
 
-Please note: Since the DLSS Enabler files in this repository are static, you'll need to keep your fork synchronized with the upstream repository to use newer DLSS Enabler versions when building manually.
+You may also modify the workflow to include your own custom components or packaging preferences.
 
-## Credits / Dependencies
-- [OptiScaler](https://github.com/optiscaler/OptiScaler)
-- [fakenvapi](https://github.com/optiscaler/fakenvapi)
-- [OptiPatcher](https://github.com/optiscaler/OptiPatcher)
-- [NVIDIA Streamline SDK](https://github.com/NVIDIA-RTX/Streamline)
-- [DLSS-Enabler](https://github.com/artur-graniszewski/DLSS-Enabler) by artur-graniszewski
-- [dlssg-to-fsr3](https://github.com/Nukem9/dlssg-to-fsr3) by Nukem9
+## Included Components
+
+| Component             | Source                                             |
+| --------------------- | -------------------------------------------------- |
+| OptiScaler            | https://github.com/optiscaler/OptiScaler           |
+| fakenvapi             | https://github.com/optiscaler/fakenvapi            |
+| OptiPatcher           | https://github.com/optiscaler/OptiPatcher          |
+| NVIDIA Streamline SDK | https://github.com/NVIDIA-RTX/Streamline           |
+| DLSS Enabler          | https://github.com/artur-graniszewski/DLSS-Enabler |
+| dlssg-to-fsr3         | https://github.com/Nukem9/dlssg-to-fsr3            |
+
+## Notes
+
+* Releases are generated automatically by GitHub Actions.
+* Release names include the build timestamp to ensure every build is uniquely identifiable.
+* Component versions included in each build are listed directly in the GitHub Release description.
+* DLSS Enabler packages stored in this repository are static. To use newer DLSS Enabler versions, update the repository contents accordingly.
+
+## Credits
+
+All credit for the software included in generated packages belongs entirely to the original project authors and maintainers.
+
+Please consider supporting the original projects by:
+
+* Starring their repositories
+* Reporting bugs
+* Contributing code
+* Following development updates
 
 ## Disclaimer
-This project is an unofficial builder and packaging utility. It is not affiliated with OptiScaler, NVIDIA, AMD, Intel, Nexus Mods, or any of the original project authors. All credit for the software, technologies, and innovations used by this project belongs to their respective developers and maintainers.
 
-This repository does not aim to replace, compete with, or redistribute ownership of any of these projects. Its purpose is simply to automate the process of building, packaging, and organizing components from their original sources.
+This project is an unofficial build automation and packaging utility.
 
-If you find this project useful, please consider supporting the original developers by starring their repositories, reporting issues, contributing code, or following their work.
+It is not affiliated with, endorsed by, or maintained by the OptiScaler, NVIDIA, AMD, Intel, DLSS Enabler, Nexus Mods, or any other upstream project teams.
+
+This repository does not redistribute ownership of any included software. Its sole purpose is to automate building, packaging, and organizing components obtained from their respective sources.
