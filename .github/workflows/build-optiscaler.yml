@@ -73,10 +73,10 @@ jobs:
         # Merge into a single version string
         $version = "v$majorVersion.$minorVersion.$hotfixVersion-pre$buildVersion"
         
-        # Get the current date in a specific format (e.g., YYYYMMDD)
-        $date = Get-Date -Format "yyyyMMdd"
+        # Get the current date and time
+        $date = Get-Date -Format "yyyyMMdd-HHmmss"
         
-        # Construct the output filename with version and date
+        # Construct the output filename with version and timestamp
         $outputFileName = "OptiScaler_${version}_${date}"
         
         # Output the generated filename
@@ -156,9 +156,12 @@ jobs:
         }
       
     - name: bygalacos - Download Latest fakenvapi
+      id: fakenvapi
       shell: powershell
       run: |
         $release = Invoke-RestMethod "https://api.github.com/repos/optiscaler/fakenvapi/releases/latest"
+        "version=$($release.tag_name)" >> $env:GITHUB_OUTPUT
+        Write-Host "fakenvapi version output set: $($release.tag_name)"
         $asset = $release.assets | Where-Object { $_.name -match "\.7z$" } | Select-Object -First 1
 
         if (-not $asset) {
@@ -172,7 +175,7 @@ jobs:
 
         Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $out
 
-        Write-Host "Extracting fakenvapi.zip"
+        Write-Host "Extracting fakenvapi.7z"
         7z x $out "-o${{ github.workspace }}\\x64\Release\a\OptiScaler" -y
 
         if ($LASTEXITCODE -ne 0) {
@@ -180,9 +183,12 @@ jobs:
         }
       
     - name: bygalacos - Download Latest OptiPatcher
+      id: optipatcher
       shell: powershell
       run: |
         $release = Invoke-RestMethod "https://api.github.com/repos/optiscaler/OptiPatcher/releases/tags/rolling"
+        "version=$($release.tag_name)" >> $env:GITHUB_OUTPUT
+        Write-Host "OptiPatcher version output set: $($release.tag_name)"
         $asset = $release.assets | Where-Object { $_.name -match "\.asi$" } | Select-Object -First 1
 
         if (-not $asset) {
@@ -197,9 +203,12 @@ jobs:
         Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $out
       
     - name: bygalacos - Download latest NVIDIA Streamline SDK
+      id: streamline
       shell: powershell
       run: |
         $release = Invoke-RestMethod "https://api.github.com/repos/NVIDIA-RTX/Streamline/releases/latest"
+        "version=$($release.tag_name)" >> $env:GITHUB_OUTPUT
+        Write-Host "NVIDIA Streamline SDK version output set: $($release.tag_name)"
         $asset = $release.assets | Where-Object { $_.name -match "^streamline-sdk-.*\.zip$" } | Select-Object -First 1
 
         if (-not $asset) {
@@ -260,6 +269,7 @@ jobs:
         }
       
     - name: bygalacos - Download latest DLSS Enabler
+      id: dlssenabler
       shell: powershell
       run: |
         $Files = Invoke-RestMethod "https://api.github.com/repos/${{ github.repository }}/contents/dlss-enabler"
@@ -280,6 +290,8 @@ jobs:
         $Versions | Format-Table @{Label="Available DLSS Enabler Versions In Repository";Expression={$_.File}}, Version -AutoSize
 
         $LatestFile = $Versions | Select-Object -First 1
+        "version=$($LatestFile.Version)" >> $env:GITHUB_OUTPUT
+        Write-Host "DLSS Enabler version output set: $($LatestFile.Version)"
 
         Write-Host "Downloading DLSS Enabler" "$($LatestFile.Version)"
         Invoke-WebRequest -Uri $LatestFile.Url -OutFile "${{ github.workspace }}\dlss-enabler.zip"
