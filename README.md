@@ -1,6 +1,6 @@
 # OptiScalerBuilder
 
-Automated GitHub Actions builder for creating packaged OptiScaler builds with the latest supported helper components.
+Automated GitHub Actions builder for creating packaged latest OptiScaler builds with the latest supported helper components.
 
 ## What this Repository Does
 
