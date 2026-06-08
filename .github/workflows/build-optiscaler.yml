@@ -74,18 +74,23 @@ jobs:
         
         # Merge into a single version string
         $version = "v$majorVersion.$minorVersion.$hotfixVersion-pre$buildVersion"
-        
+
         # Get the current date and time
         $date = Get-Date -Format "yyyyMMdd-HHmmss"
-        
-        # Construct the output filename with version and timestamp
-        $outputFileName = "OptiScaler_${version}_${date}"
-        
+
+        # Get OptiScaler short commit SHA
+        $sha = git rev-parse --short=8 HEAD
+
+        # Construct the output filename with version, SHA and timestamp
+        $outputFileName = "OptiScaler_${version}_${sha}_${date}"
+
         # Output the generated filename
         Write-Output "Generated Filename: $outputFileName"
-        
+        Write-Output "OptiScaler SHA: $sha"
+
         # Write outputs to GITHUB_OUTPUT
         "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "sha=$sha" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
         "filename=$outputFileName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
         
       continue-on-error: false
@@ -327,7 +332,7 @@ jobs:
 
           | Component | Version |
           |-----------|---------|
-          | OptiScaler | ${{ steps.get_version.outputs.version }} |
+          | OptiScaler | ${{ steps.get_version.outputs.version }} - SHA: ${{ steps.get_version.outputs.sha }} |
           | fakenvapi | ${{ steps.fakenvapi.outputs.version }} |
           | OptiPatcher | ${{ steps.optipatcher.outputs.version }} |
           | NVIDIA Streamline SDK | ${{ steps.streamline.outputs.version }} |
