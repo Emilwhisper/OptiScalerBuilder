@@ -88,10 +88,10 @@ jobs:
         Write-Output "Generated Filename: $outputFileName"
         Write-Output "OptiScaler SHA: $sha"
 
-# Write outputs to GITHUB_OUTPUT
-"version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-"sha=$sha" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-"filename=$outputFileName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        # Write outputs to GITHUB_OUTPUT
+        "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "sha=$sha" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "filename=$outputFileName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
         
       continue-on-error: false
       
