@@ -35,7 +35,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         repository: optiscaler/OptiScaler
-        ref: f62a7e32297636b6c7fd08c0ca1e569f8ba494d3
+        ref: e0217aed0b313d88716bb2aa71e7a44c9a5f6a16
         path: .
         submodules: recursive
         
