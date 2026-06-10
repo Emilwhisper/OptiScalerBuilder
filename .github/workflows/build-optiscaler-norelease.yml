@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Run OptiScalerBuilder - Test
+name: Run OptiScalerBuilder - No Release
 
 on:
   workflow_dispatch:
