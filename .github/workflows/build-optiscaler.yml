@@ -37,7 +37,7 @@ jobs:
         repository: optiscaler/OptiScaler
         path: .
         submodules: recursive
-        
+      
     - name: OptiScaler - Extract Version
       id: get_version
       working-directory: ${{ github.workspace }}
@@ -76,7 +76,7 @@ jobs:
         $version = "v$majorVersion.$minorVersion.$hotfixVersion-pre$buildVersion"
 
         # Get the current date and time
-        $date = Get-Date -Format "yyyyMMdd-HHmmss"
+        $date = Get-Date -Format "yyyyMMdd_HHmmss"
 
         # Get OptiScaler short commit SHA
         $sha = git rev-parse --short=8 HEAD
@@ -95,14 +95,9 @@ jobs:
         
       continue-on-error: false
       
-    - name: OptiScaler - Debug Outputs
-      run: |
-        echo "Version: ${{ steps.get_version.outputs.version }}"
-        echo "Filename: ${{ steps.get_version.outputs.filename }}"
-        
     - name: OptiScaler - Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
-
+      
     - name: OptiScaler - Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
