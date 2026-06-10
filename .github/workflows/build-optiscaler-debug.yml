@@ -75,7 +75,7 @@ jobs:
         $version = "v$majorVersion.$minorVersion.$hotfixVersion-pre$buildVersion"
 
         # Get the current date and time
-        $date = Get-Date -Format "yyyyMMdd-HHmmss"
+        $date = Get-Date -Format "yyyyMMdd_HHmmss"
 
         # Get OptiScaler short commit SHA
         $sha = git rev-parse --short=8 HEAD
