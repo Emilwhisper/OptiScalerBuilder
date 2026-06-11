@@ -45,14 +45,16 @@ You may also modify the workflow to include your own custom components or packag
 
 ## Included Components
 
-| Component             | Source                                             |
-| --------------------- | -------------------------------------------------- |
-| OptiScaler            | https://github.com/optiscaler/OptiScaler           |
-| fakenvapi             | https://github.com/optiscaler/fakenvapi            |
-| OptiPatcher           | https://github.com/optiscaler/OptiPatcher          |
-| NVIDIA Streamline SDK | https://github.com/NVIDIA-RTX/Streamline           |
-| DLSS Enabler          | https://github.com/artur-graniszewski/DLSS-Enabler |
-| dlssg-to-fsr3         | https://github.com/Nukem9/dlssg-to-fsr3            |
+| Component             | Source                                                                  |
+| --------------------- | ----------------------------------------------------------------------- |
+| OptiScaler            | <https://github.com/optiscaler/OptiScaler>                              |
+| fakenvapi             | <https://github.com/optiscaler/fakenvapi>                               |
+| OptiPatcher           | <https://github.com/optiscaler/OptiPatcher>                             |
+| NVIDIA Streamline SDK | <https://github.com/NVIDIA-RTX/Streamline>                              |
+| DLSS Enabler          | <https://github.com/artur-graniszewski/DLSS-Enabler>                    |
+| dlssg-to-fsr3         | <https://github.com/Nukem9/dlssg-to-fsr3>                               |
+| AMD FSR™ SDK          | <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK>            |
+| Intel XeSS SDK        | <https://github.com/intel/xess>                                         |
 
 ## Notes
 
