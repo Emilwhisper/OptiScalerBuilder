@@ -2,8 +2,8 @@
 
 > Automated GitHub Actions builder for creating packaged OptiScaler builds with the latest supported helper components.
 
-[![Build OptiScaler](../../actions/workflows/build-optiscaler.yml/badge.svg)](../../actions)
-[![Latest Release](https://img.shields.io/github/v/release/bygalacos/OptiScalerBuilder)](../../releases/latest)
+[![Build OptiScaler](https://github.com/bygalacos/OptiScalerBuilder/actions/workflows/build-optiscaler.yml/badge.svg)](https://github.com/bygalacos/OptiScalerBuilder/actions/workflows/build-optiscaler.yml)
+[![Latest Release](https://img.shields.io/github/v/release/bygalacos/OptiScalerBuilder?label=Latest%20Release)](https://github.com/bygalacos/OptiScalerBuilder/releases/latest)
 
 Automatically builds and packages OptiScaler together with commonly used dependencies into a single portable release package.
 
