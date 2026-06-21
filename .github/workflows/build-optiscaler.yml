@@ -99,10 +99,38 @@ jobs:
       run: |
         echo "Version: ${{ steps.get_version.outputs.version }}"
         echo "Filename: ${{ steps.get_version.outputs.filename }}"
-        
+      
+    - name: bygalacos - Patch OptiScaler Menu Title
+      shell: powershell
+      run: |
+        $file = "${{ github.workspace }}\OptiScaler\menu\menu_common.cpp"
+        $content = Get-Content $file -Raw
+
+        $checks = @(
+          'windowTitle = StrFmt("%s - %s %s %s %s",',
+          'StrFmt("- %s", state.gameName.c_str())',
+          '? "(Q)" : ""',
+          '? "(OP)" : ""'
+        )
+
+        foreach ($check in $checks) {
+          if (-not $content.Contains($check)) {
+            Write-Host "::warning::OptiScaler menu title patch skipped. Expected source text not found: $check"
+            return
+          }
+        }
+
+        $content = $content.Replace('windowTitle = StrFmt("%s - %s %s %s %s",', 'windowTitle = StrFmt("%s - %s %s%s%s | Built via github.com/bygalacos/OptiScalerBuilder",')
+        $content = $content.Replace('StrFmt("- %s", state.gameName.c_str())', 'StrFmt(" - %s", state.gameName.c_str())')
+        $content = $content.Replace('? "(Q)" : ""', '? " (Q)" : ""')
+        $content = $content.Replace('? "(OP)" : ""', '? " (OP)" : ""')
+
+        Set-Content $file $content -NoNewline
+        Write-Host "OptiScaler menu title patched successfully."
+      
     - name: OptiScaler - Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
-
+      
     - name: OptiScaler - Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
