@@ -12,8 +12,8 @@ Automatically builds and packages OptiScaler together with commonly used depende
 
 ## 🚀 Quick Start
 
-1. Go to the [Releases](https://github.com/bygalacos/OptiScalerBuilder/releases) page.
-2. Download the latest `.7z` package.
+1. Go to the [Latest Release](https://github.com/bygalacos/OptiScalerBuilder/releases/latest) page.
+2. Download the `.7z` package.
 3. Extract the archive.
 4. Use the packaged files as needed.
 
