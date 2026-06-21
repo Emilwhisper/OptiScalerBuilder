@@ -113,7 +113,7 @@ jobs:
           }
         }
 
-        $content = $content.Replace('windowTitle = StrFmt("%s - %s %s %s %s",', 'windowTitle = StrFmt("%s - %s %s%s%s | Built via github.com/bygalacos/OptiScalerBuilder",')
+        $content = $content.Replace('windowTitle = StrFmt("%s - %s %s %s %s",', 'windowTitle = StrFmt("%s - %s %s%s%s | github.com/bygalacos/OptiScalerBuilder",')
         $content = $content.Replace('StrFmt("- %s", state.gameName.c_str())', 'StrFmt(" - %s", state.gameName.c_str())')
         $content = $content.Replace('? "(Q)" : ""', '? " (Q)" : ""')
         $content = $content.Replace('? "(OP)" : ""', '? " (OP)" : ""')
