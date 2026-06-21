@@ -115,7 +115,7 @@ jobs:
 
         foreach ($check in $checks) {
           if (-not $content.Contains($check)) {
-            Write-Host "::warning::OptiScaler menu title patch skipped. Expected source text not found: $check"
+            Write-Host "WARN: OptiScaler menu title patch skipped. Expected source text not found."
             return
           }
         }
