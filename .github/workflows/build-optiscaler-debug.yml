@@ -108,7 +108,7 @@ jobs:
 
         $content = $content.Replace(
         'windowTitle = StrFmt("%s - %s %s %s %s",',
-        'windowTitle = StrFmt("%s - %s %s%s%s | Built via github.com/bygalacos/OptiScalerBuilder",'
+        'windowTitle = StrFmt("%s - %s %s%s%s | github.com/bygalacos/OptiScalerBuilder",'
         )
 
         $content = $content.Replace(
