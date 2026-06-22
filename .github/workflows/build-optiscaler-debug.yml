@@ -127,6 +127,7 @@ jobs:
         )
 
         Set-Content $file $content -NoNewline
+        Write-Host "OptiScaler menu title patched successfully."
         
     - name: OptiScaler - Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
