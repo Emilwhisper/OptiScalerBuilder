@@ -7,6 +7,8 @@ name: Run OptiScalerBuilder
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
 #  push:
 #    branches: [ "master" ]
 #  pull_request:
@@ -72,18 +74,23 @@ jobs:
         
         # Merge into a single version string
         $version = "v$majorVersion.$minorVersion.$hotfixVersion-pre$buildVersion"
-        
-        # Get the current date in a specific format (e.g., YYYYMMDD)
-        $date = Get-Date -Format "yyyyMMdd"
-        
-        # Construct the output filename with version and date
-        $outputFileName = "OptiScaler_${version}_${date}"
-        
+
+        # Get the current date and time
+        $date = Get-Date -Format "yyyyMMdd_HHmmss"
+
+        # Get OptiScaler short commit SHA
+        $sha = git rev-parse --short=8 HEAD
+
+        # Construct the output filename with version, SHA and timestamp
+        $outputFileName = "OptiScaler_${version}_${sha}_${date}"
+
         # Output the generated filename
         Write-Output "Generated Filename: $outputFileName"
-        
+        Write-Output "OptiScaler SHA: $sha"
+
         # Write outputs to GITHUB_OUTPUT
         "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "sha=$sha" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
         "filename=$outputFileName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
         
       continue-on-error: false
@@ -92,10 +99,40 @@ jobs:
       run: |
         echo "Version: ${{ steps.get_version.outputs.version }}"
         echo "Filename: ${{ steps.get_version.outputs.filename }}"
-        
+      
+    - name: bygalacos - Patch OptiScaler Menu Title
+      shell: powershell
+      run: |
+        $file = "${{ github.workspace }}\OptiScaler\menu\menu_common.cpp"
+
+        $content = Get-Content $file -Raw
+
+        $content = $content.Replace(
+        'windowTitle = StrFmt("%s - %s %s %s %s",',
+        'windowTitle = StrFmt("%s - %s %s%s%s | github.com/bygalacos/OptiScalerBuilder",'
+        )
+
+        $content = $content.Replace(
+        'StrFmt("- %s", state.gameName.c_str())',
+        'StrFmt(" - %s", state.gameName.c_str())'
+        )
+
+        $content = $content.Replace(
+        '? "(Q)" : ""',
+        '? " (Q)" : ""'
+        )
+
+        $content = $content.Replace(
+        '? "(OP)" : ""',
+        '? " (OP)" : ""'
+        )
+
+        Set-Content $file $content -NoNewline
+        Write-Host "OptiScaler menu title patched successfully."
+      
     - name: OptiScaler - Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
-
+      
     - name: OptiScaler - Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
@@ -156,9 +193,12 @@ jobs:
         }
       
     - name: bygalacos - Download Latest fakenvapi
+      id: fakenvapi
       shell: powershell
       run: |
         $release = Invoke-RestMethod "https://api.github.com/repos/optiscaler/fakenvapi/releases/latest"
+        "version=$($release.tag_name)" >> $env:GITHUB_OUTPUT
+        Write-Host "fakenvapi version output set: $($release.tag_name)"
         $asset = $release.assets | Where-Object { $_.name -match "\.7z$" } | Select-Object -First 1
 
         if (-not $asset) {
@@ -172,7 +212,7 @@ jobs:
 
         Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $out
 
-        Write-Host "Extracting fakenvapi.zip"
+        Write-Host "Extracting fakenvapi.7z"
         7z x $out "-o${{ github.workspace }}\\x64\Release\a\OptiScaler" -y
 
         if ($LASTEXITCODE -ne 0) {
@@ -180,9 +220,12 @@ jobs:
         }
       
     - name: bygalacos - Download Latest OptiPatcher
+      id: optipatcher
       shell: powershell
       run: |
         $release = Invoke-RestMethod "https://api.github.com/repos/optiscaler/OptiPatcher/releases/tags/rolling"
+        "version=$($release.tag_name)" >> $env:GITHUB_OUTPUT
+        Write-Host "OptiPatcher version output set: $($release.tag_name)"
         $asset = $release.assets | Where-Object { $_.name -match "\.asi$" } | Select-Object -First 1
 
         if (-not $asset) {
@@ -197,9 +240,12 @@ jobs:
         Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $out
       
     - name: bygalacos - Download latest NVIDIA Streamline SDK
+      id: streamline
       shell: powershell
       run: |
         $release = Invoke-RestMethod "https://api.github.com/repos/NVIDIA-RTX/Streamline/releases/latest"
+        "version=$($release.tag_name)" >> $env:GITHUB_OUTPUT
+        Write-Host "NVIDIA Streamline SDK version output set: $($release.tag_name)"
         $asset = $release.assets | Where-Object { $_.name -match "^streamline-sdk-.*\.zip$" } | Select-Object -First 1
 
         if (-not $asset) {
@@ -260,6 +306,7 @@ jobs:
         }
       
     - name: bygalacos - Download latest DLSS Enabler
+      id: dlssenabler
       shell: powershell
       run: |
         $Files = Invoke-RestMethod "https://api.github.com/repos/${{ github.repository }}/contents/dlss-enabler"
@@ -267,7 +314,7 @@ jobs:
         $Versions = $Files |
             Where-Object { $_.name -like "*.zip" } |
             ForEach-Object {
-                if ($_.name -match 'DLSS Enabler (\d+\.\d+\.\d+)') {
+                if ($_.name -match 'DLSS Enabler (\d+(?:\.\d+){2,3})') {
                     [PSCustomObject]@{
                         Version = [version]$Matches[1]
                         File    = $_.name
@@ -280,6 +327,8 @@ jobs:
         $Versions | Format-Table @{Label="Available DLSS Enabler Versions In Repository";Expression={$_.File}}, Version -AutoSize
 
         $LatestFile = $Versions | Select-Object -First 1
+        "version=$($LatestFile.Version)" >> $env:GITHUB_OUTPUT
+        Write-Host "DLSS Enabler version output set: $($LatestFile.Version)"
 
         Write-Host "Downloading DLSS Enabler" "$($LatestFile.Version)"
         Invoke-WebRequest -Uri $LatestFile.Url -OutFile "${{ github.workspace }}\dlss-enabler.zip"
@@ -302,3 +351,29 @@ jobs:
         archive: false
         compression-level: 0
         if-no-files-found: error
+
+    - name: Publish GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.get_version.outputs.filename }}
+        name: ${{ steps.get_version.outputs.filename }}
+        body: |
+          ## Current Build Info
+
+          | Component | Version |
+          |-----------|---------|
+          | OptiScaler | ${{ steps.get_version.outputs.version }} - SHA: ${{ steps.get_version.outputs.sha }} |
+          | fakenvapi | ${{ steps.fakenvapi.outputs.version }} |
+          | OptiPatcher | ${{ steps.optipatcher.outputs.version }} |
+          | NVIDIA Streamline SDK | ${{ steps.streamline.outputs.version }} |
+          | DLSS Enabler | ${{ steps.dlssenabler.outputs.version }} |
+
+          Build Package:
+          `${{ steps.get_version.outputs.filename }}_bygalacos.7z`
+        files: |
+          ${{ github.workspace }}\${{ steps.get_version.outputs.filename }}_bygalacos.7z
+        prerelease: false
+        make_latest: true
+        overwrite_files: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
